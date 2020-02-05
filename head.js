@@ -1,6 +1,6 @@
 export default {
   title: 'Default Theme',
-  titleTemplate: '%s - Москва',
+  titleTemplate: '%s - Питер',
   htmlAttrs: {
     lang: 'en'
   },
