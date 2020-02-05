@@ -1,36 +1,6 @@
 <template>
   <div id="home">
-    <head-image />
 
-    <promoted-offers />
-
-    <section class="new-collection container px15">
-      <div>
-        <header class="col-md-12">
-          <h2 class="align-center cl-accent">
-            {{ $t('Everything new') }}
-          </h2>
-        </header>
-      </div>
-      <div class="row center-xs">
-        <lazy-hydrate :trigger-hydration="!loading" v-if="isLazyHydrateEnabled">
-          <product-listing columns="4" :products="getEverythingNewCollection" />
-        </lazy-hydrate>
-        <product-listing v-else columns="4" :products="getEverythingNewCollection" />
-      </div>
-    </section>
-
-    <section v-if="isOnline" class="container pb60 px15">
-      <div class="row center-xs">
-        <header class="col-md-12" :class="{ pt40: getEverythingNewCollection && getEverythingNewCollection.length }">
-          <h2 class="align-center cl-accent">
-            {{ $t('Get inspired') }}
-          </h2>
-        </header>
-      </div>
-      <tile-links />
-    </section>
-    <Onboard />
   </div>
 </template>
 
