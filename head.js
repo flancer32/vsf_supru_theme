@@ -2,7 +2,7 @@ export default {
   title: 'Default Theme',
   titleTemplate: '%s - Питер',
   htmlAttrs: {
-    lang: 'en'
+    lang: 'ru'
   },
   meta: [
     { charset: 'utf-8' },
