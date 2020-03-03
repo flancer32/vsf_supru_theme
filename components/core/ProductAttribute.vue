@@ -1,6 +1,6 @@
 <template>
   <li class="lh30 h5">
-    <span>{{ label|htmlDecode }} </span>
+    <span>{{ label|htmlDecode }}:</span>
     <span class="weight-700">{{ value|htmlDecode }}</span>
   </li>
 </template>
