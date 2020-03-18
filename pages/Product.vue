@@ -131,6 +131,8 @@
               v-if="getCurrentProduct.type_id !== 'grouped' && getCurrentProduct.type_id !== 'bundle'"
               v-model="getCurrentProduct.qty"
               :max-quantity="maxQuantity"
+              :min-quantity="minQuantity"
+              :step-quantity="stepQuantity"
               :loading="isStockInfoLoading"
               :is-simple-or-configurable="isSimpleOrConfigurable"
               show-quantity
@@ -200,45 +202,43 @@
 </template>
 
 <script>
-import i18n from '@vue-storefront/i18n'
-import Product from '@vue-storefront/core/pages/Product'
-import VueOfflineMixin from 'vue-offline/mixin'
-import config from 'config'
-import RelatedProducts from 'theme/components/core/blocks/Product/Related.vue'
-import Reviews from 'theme/components/core/blocks/Reviews/Reviews.vue'
-import AddToCart from 'theme/components/core/AddToCart.vue'
-import GenericSelector from 'theme/components/core/GenericSelector'
-import ColorSelector from 'theme/components/core/ColorSelector.vue'
-import SizeSelector from 'theme/components/core/SizeSelector.vue'
-import Breadcrumbs from 'theme/components/core/Breadcrumbs.vue'
-import ProductAttribute from 'theme/components/core/ProductAttribute.vue'
-import ProductQuantity from 'theme/components/core/ProductQuantity.vue'
-import ProductLinks from 'theme/components/core/ProductLinks.vue'
-import ProductCustomOptions from 'theme/components/core/ProductCustomOptions.vue'
-import ProductBundleOptions from 'theme/components/core/ProductBundleOptions.vue'
-import ProductGallery from 'theme/components/core/ProductGallery'
-import Spinner from 'theme/components/core/Spinner'
-import PromotedOffers from 'theme/components/theme/blocks/PromotedOffers/PromotedOffers'
-import focusClean from 'theme/components/theme/directives/focusClean'
-import WebShare from 'theme/components/theme/WebShare'
-import BaseInputNumber from 'theme/components/core/blocks/Form/BaseInputNumber'
-import SizeGuide from 'theme/components/core/blocks/Product/SizeGuide'
-import AddToWishlist from 'theme/components/core/blocks/Wishlist/AddToWishlist'
-import AddToCompare from 'theme/components/core/blocks/Compare/AddToCompare'
-import { mapGetters } from 'vuex'
-import LazyHydrate from 'vue-lazy-hydration'
-import { ProductOption } from '@vue-storefront/core/modules/catalog/components/ProductOption.ts'
-import { getAvailableFiltersByProduct, getSelectedFiltersByProduct } from '@vue-storefront/core/modules/catalog/helpers/filters'
-import { isOptionAvailableAsync } from '@vue-storefront/core/modules/catalog/helpers/index'
-import { localizedRoute, currentStoreView } from '@vue-storefront/core/lib/multistore'
-import { htmlDecode } from '@vue-storefront/core/filters'
-import { ReviewModule } from '@vue-storefront/core/modules/review'
-import { RecentlyViewedModule } from '@vue-storefront/core/modules/recently-viewed'
-import { registerModule, isModuleRegistered } from '@vue-storefront/core/lib/modules'
-import { onlineHelper, isServer } from '@vue-storefront/core/helpers'
-import { catalogHooksExecutors } from '@vue-storefront/core/modules/catalog-next/hooks'
+  import config from 'config'
+  import RelatedProducts from 'theme/components/core/blocks/Product/Related.vue'
+  import Reviews from 'theme/components/core/blocks/Reviews/Reviews.vue'
+  import AddToCart from 'theme/components/core/AddToCart.vue'
+  import GenericSelector from 'theme/components/core/GenericSelector'
+  import ColorSelector from 'theme/components/core/ColorSelector.vue'
+  import SizeSelector from 'theme/components/core/SizeSelector.vue'
+  import Breadcrumbs from 'theme/components/core/Breadcrumbs.vue'
+  import ProductAttribute from 'theme/components/core/ProductAttribute.vue'
+  import ProductQuantity from 'theme/components/core/ProductQuantity.vue'
+  import ProductLinks from 'theme/components/core/ProductLinks.vue'
+  import ProductCustomOptions from 'theme/components/core/ProductCustomOptions.vue'
+  import ProductBundleOptions from 'theme/components/core/ProductBundleOptions.vue'
+  import ProductGallery from 'theme/components/core/ProductGallery'
+  import PromotedOffers from 'theme/components/theme/blocks/PromotedOffers/PromotedOffers'
+  import focusClean from 'theme/components/theme/directives/focusClean'
+  import WebShare from 'theme/components/theme/WebShare'
+  import SizeGuide from 'theme/components/core/blocks/Product/SizeGuide'
+  import AddToWishlist from 'theme/components/core/blocks/Wishlist/AddToWishlist'
+  import AddToCompare from 'theme/components/core/blocks/Compare/AddToCompare'
+  import {mapGetters} from 'vuex'
+  import LazyHydrate from 'vue-lazy-hydration'
+  import {ProductOption} from '@vue-storefront/core/modules/catalog/components/ProductOption.ts'
+  import {
+    getAvailableFiltersByProduct,
+    getSelectedFiltersByProduct
+  } from '@vue-storefront/core/modules/catalog/helpers/filters'
+  import {isOptionAvailableAsync} from '@vue-storefront/core/modules/catalog/helpers/index'
+  import {currentStoreView, localizedRoute} from '@vue-storefront/core/lib/multistore'
+  import {htmlDecode} from '@vue-storefront/core/filters'
+  import {ReviewModule} from '@vue-storefront/core/modules/review'
+  import {RecentlyViewedModule} from '@vue-storefront/core/modules/recently-viewed'
+  import {registerModule} from '@vue-storefront/core/lib/modules'
+  import {isServer, onlineHelper} from '@vue-storefront/core/helpers'
+  import {catalogHooksExecutors} from '@vue-storefront/core/modules/catalog-next/hooks'
 
-export default {
+  export default {
   components: {
     AddToCart,
     AddToCompare,
@@ -270,6 +270,8 @@ export default {
     return {
       detailsOpen: false,
       maxQuantity: 0,
+      minQuantity: 1,
+      stepQuantity: 1,
       quantityError: false,
       isStockInfoLoading: false,
       hasAttributesLoaded: false
@@ -409,6 +411,11 @@ export default {
           qty: this.getCurrentProduct.qty
         })
         this.maxQuantity = res.qty
+        if(this.getCurrentProduct.stock) {
+          this.stepQuantity = this.getCurrentProduct.stock.qty_increment ?? 1
+        }
+        this.minQuantity = this.stepQuantity
+        if (this.getCurrentProduct.qty < this.minQuantity) this.getCurrentProduct.qty = parseInt(this.minQuantity)
       } finally {
         this.isStockInfoLoading = false
       }

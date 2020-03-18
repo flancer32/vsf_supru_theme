@@ -3,8 +3,9 @@
     <base-input-number
       :name="name"
       :value="value"
-      :min="1"
+      :min="min"
       :max="max"
+      :step="step"
       :disabled="disabled"
       @input="$emit('input', $event)"
       @blur="$v.$touch()"
@@ -47,6 +48,14 @@ export default {
       type: Number,
       required: true
     },
+    minQuantity: {
+      type: Number,
+      default: 1
+    },
+    stepQuantity: {
+      type: Number,
+      default: 1
+    },
     loading: {
       type: Boolean,
       default: false
@@ -60,8 +69,14 @@ export default {
     isOnline (value) {
       return onlineHelper.isOnline
     },
+    min () {
+      return this.minQuantity
+    },
     max () {
       return this.isOnline ? this.maxQuantity : null
+    },
+    step () {
+      return this.stepQuantity
     },
     disabled () {
       return this.isOnline ? !this.maxQuantity : false
