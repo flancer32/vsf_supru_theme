@@ -412,9 +412,9 @@
         })
         this.maxQuantity = res.qty
         if(this.getCurrentProduct.stock) {
-          this.stepQuantity = this.getCurrentProduct.stock.qty_increment ?? 1
+          this.stepQuantity = this.getCurrentProduct.stock.qty_increments ?? 1
+          this.minQuantity = this.stepQuantity
         }
-        this.minQuantity = this.stepQuantity
         if (this.getCurrentProduct.qty < this.minQuantity) this.getCurrentProduct.qty = parseInt(this.minQuantity)
       } finally {
         this.isStockInfoLoading = false
