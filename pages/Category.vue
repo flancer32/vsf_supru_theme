@@ -141,21 +141,23 @@ export default {
     }),
     getCategoryProducts() {
       /* wrap getter to replace prices with group prices*/
-      const user = this.$store.state.user.current;
-      const group_id = user.group_id;
       const result = this.$store.getters['category-next/getCategoryProducts'];
-      result.forEach((product, index, array) => {
-        if (Array.isArray(product.group_prices)) {
-          product.group_prices.forEach((one) => {
-            if (one.group_id == group_id) {
-              product.price = one.price;
-              product.price_incl_tax = one.price;
-              product.special_price = one.price;
-              product.special_price_incl_tax = one.price;
-            }
-          })
-        }
-      });
+      const user = this.$store.state.user.current;
+      if (user && user.group_id) {
+        const group_id = user.group_id;
+        result.forEach((product, index, array) => {
+          if (Array.isArray(product.group_prices)) {
+            product.group_prices.forEach((one) => {
+              if (one.group_id == group_id) {
+                product.price = one.price;
+                product.price_incl_tax = one.price;
+                product.special_price = one.price;
+                product.special_price_incl_tax = one.price;
+              }
+            })
+          }
+        });
+      }
       return result;
     },
     isLazyHydrateEnabled () {
