@@ -53,7 +53,9 @@
             class="h5 cl-accent lh25 qty"
             v-if="product.type_id !== 'grouped' && product.type_id !== 'bundle'"
             :value="productQty"
+            :min-quantity="minQuantity"
             :max-quantity="maxQuantity"
+            :step-quantity="stepQuantity"
             :loading="isStockInfoLoading"
             :is-simple-or-configurable="isSimpleOrConfigurable"
             @input="updateProductQty"
@@ -157,7 +159,9 @@ import EditMode from './EditMode'
 export default {
   data () {
     return {
+      minQuantity: 1,
       maxQuantity: 0,
+      stepQuantity: 1,
       quantityError: false,
       isStockInfoLoading: false
     }
@@ -255,6 +259,15 @@ export default {
           product: validProduct,
           qty: this.productQty
         })
+        // use 'product.stock.qty_increments' data been loaded from Elasticsearch for min/step values
+        if(
+          validProduct.stock &&
+          validProduct.stock.qty_increments
+        ) {
+          const qtyInc = validProduct.stock.qty_increments;
+          this.minQuantity = qtyInc;
+          this.stepQuantity = qtyInc;
+        }
         return res.qty
       } finally {
         this.isStockInfoLoading = false
