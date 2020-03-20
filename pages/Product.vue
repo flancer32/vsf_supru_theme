@@ -280,12 +280,29 @@
   computed: {
     ...mapGetters({
       getCurrentCategory: 'category-next/getCurrentCategory',
-      getCurrentProduct: 'product/getCurrentProduct',
+      // getCurrentProduct: 'product/getCurrentProduct',
       getProductGallery: 'product/getProductGallery',
       getCurrentProductConfiguration: 'product/getCurrentProductConfiguration',
       getOriginalProduct: 'product/getOriginalProduct',
       attributesByCode: 'attribute/attributeListByCode'
     }),
+    getCurrentProduct() {
+      /* wrap getter to replace prices with group prices*/
+      const user = this.$store.state.user.current;
+      const group_id = user.group_id;
+      const product = this.$store.getters['product/getCurrentProduct'];
+      if (Array.isArray(product.group_prices)) {
+        product.group_prices.forEach((one) => {
+          if (one.group_id == group_id) {
+            product.price = one.price;
+            product.price_incl_tax = one.price;
+            product.special_price = one.price;
+            product.special_price_incl_tax = one.price;
+          }
+        })
+      }
+      return product;
+    },
     getOptionLabel () {
       return (option) => {
         const configName = option.attribute_code ? option.attribute_code : option.label.toLowerCase()
